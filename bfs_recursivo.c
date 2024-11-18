@@ -32,16 +32,18 @@ int vizinho(int x, int y, int L) {
 }
 
 // Função BFS recursiva, função com um calculador de distâncias
-void bfs(int *visitado, int node, int L) {
+void bfs(int *visitado, int *distancia, int node, int L) {
     // Marcar o vértice como visitado
     visitado[node] = 1;
-    printf("Visitando nó %d\n", node);
+    printf("Visitando nó %d\n", node, distancia[node]);
 
     // Explorar os vizinhos do nó atual
     for (int dir = 1; dir <= 4; dir++) {
         int viz = vizinho(node, dir, L);
         if (viz != -1 && !visitado[viz]) {
-            bfs(visitado, viz, L); // Chamada recursiva
+            //atualizar distancia vizinhos
+            distancia[viz] = distancia[node] + 1;
+            bfs(visitado, distancia, viz, L); // Chamada recursiva
         }
     }
 }
@@ -74,18 +76,38 @@ int main(int argc, char **argv) {
 
     // Alocar memória para o array de visitados
     int *visitado = (int *)calloc(N, sizeof(int));
-    if (visitado == NULL) {
+    int *distancia = (int *)malloc(N * sizeof(int));
+    if (visitado == NULL || distancia == NULL) {
         perror("Erro ao alocar memória");
         return 1;
     }
 
-    // Chamar BFS a partir do nó 0
-    printf("Iniciando BFS...\n");
-    bfs(visitado, 0, L);
+    //inicializar array de distancias com -1 (nao visitado)
+    for (int i = 0; i < N; i++) {
+        distancia[i] = -1;
+    }
+
+    // Chamar BFS recursivo a partir do nó 0
+    printf("Iniciando BFS recursivo com cálculo de distâncias...\n");
+    bfs(visitado, distancia, 0, L);
+
     // Contar o número de nós visitados
     int totalVisitados = contaNos(visitado, L);
     printf("Número total de nós visitados: %d\n", totalVisitados);
+
+    // Exibir as distâncias para cada nó
+    printf("\nDistâncias de cada nó a partir do nó inicial:\n");
+    for (int i = 0; i < N; i++) {
+        if (distancia[i] != -1) {
+            printf("Nó %d: distância = %d\n", i, distancia[i]);
+        } else {
+            printf("Nó %d: não alcançável\n", i);
+        }
+    }
+
     // Liberar a memória alocada
     free(visitado);
+    free(distancia);
+
     return 0;
 }
