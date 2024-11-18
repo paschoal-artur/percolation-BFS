@@ -35,15 +35,16 @@ int vizinho(int x, int y, int L) {
 }
 
 // Função BFS Iterativa
-void bfs(int *visitado, int L, int start) {
+void bfs(int *visitado, int *distancia, int L, int start) {
     int *fila = (int *)malloc(N * sizeof(int)); // Fila para BFS
     int inicio = 0, fim = 0; // Ponteiros da fila
 
-    // Adiciona o nó inicial à fila e marca como visitado
+    // Inicializa o nó inicial
     fila[fim++] = start;
     visitado[start] = 1;
+    distancia[start] = 0;
 
-    printf("Iniciando BFS Iterativo...\n");
+    printf("Iniciando BFS padrão e cálculo de distâncias...\n");
 
     while (inicio < fim) {
         // Remove o primeiro elemento da fila
@@ -54,15 +55,24 @@ void bfs(int *visitado, int L, int start) {
         for (int dir = 1; dir <= 4; dir++) {
             int viz = vizinho(node, dir, L);
 
-            // Verifica se o vizinho é válido e não foi visitado
+            // Verifica se o vizinho é válido e ainda não foi visitado
             if (viz != -1 && !visitado[viz]) {
                 fila[fim++] = viz; // Adiciona o vizinho à fila
                 visitado[viz] = 1; // Marca como visitado
+                distancia[viz] = distancia[node] + 1; // Calcula a distância
             }
         }
     }
 
     free(fila); // Libera a memória da fila
+}
+
+int contaNos(int *visitado, int L) {
+    int cont = 0;
+    for (int i = 0; i < L * L; i++) {
+        if (visitado[i]) cont++;
+    }
+    return cont;
 }
 
 int main(int argc, char **argv) {
@@ -83,15 +93,34 @@ int main(int argc, char **argv) {
 
     N = L * L; // Total de nós na grade
 
-    // Aloca memória para o array de visitados
+    // Alocar memória para os arrays de visitados e distâncias
     int *visitado = (int *)calloc(N, sizeof(int));
-    if (visitado == NULL) {
+    int *distancia = (int *)malloc(N * sizeof(int));
+    if (visitado == NULL || distancia == NULL) {
         perror("Erro ao alocar memória");
         return 1;
     }
 
+    // Inicializa o array de distâncias com -1 (não visitado)
+    for (int i = 0; i < N; i++) {
+        distancia[i] = -1;
+    }
+
     // Chama a BFS Iterativa a partir do nó inicial (0)
-    bfs(visitado, L, 0);
+    bfs(visitado, distancia, L, 0);
+
+    int totalVisitados = contaNos(visitado, L);
+    printf("Total de nós visitados: %d\n", totalVisitados);
+
+    //exibir a distancia para cada nó
+    printf("\nDistâncias de cada nó a partir do nó inicial:\n");
+    for (int i = 0; i < N; i++) {
+        if (distancia[i] != -1) {
+            printf("Nó %d: distância = %d\n", i, distancia[i]);
+        } else {
+            printf("Nó %d: não alcançável\n", i);
+        }
+    }
 
     // Libera memória alocada
     free(visitado);

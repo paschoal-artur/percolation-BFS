@@ -31,7 +31,7 @@ int vizinho(int x, int y, int L) {
     return -1;
 }
 
-// Função BFS recursiva
+// Função BFS recursiva, função com um calculador de distâncias
 void bfs(int *visitado, int node, int L) {
     // Marcar o vértice como visitado
     visitado[node] = 1;
@@ -46,16 +46,31 @@ void bfs(int *visitado, int node, int L) {
     }
 }
 
+int contaNos(int *visitado, int L) {
+    int cont = 0;
+    for (int i = 0; i < L * L; i++) {
+        if (visitado[i]) cont++;
+    }
+    return cont;
+}
+
 int main(int argc, char **argv) {
-    // Verificar se o número de argumentos está correto
-    if (argc != 2) {
-        printf("Uso: %s <tamanho da grade>\n", argv[0]);
+    int L; // Tamanho da grade
+    // Verificar se o tamanho foi fornecido na linha de comando
+    if (argc == 2) {
+        L = atoi(argv[1]); // Converte o argumento da linha de comando para inteiro
+    } else {
+        // Caso contrário, solicita o tamanho da grade ao usuário
+        printf("Digite o tamanho da grade (L): ");
+        scanf("%d", &L);
+    }
+
+    if (L <= 0) {
+        printf("O tamanho da grade deve ser maior que 0.\n");
         return 1;
     }
 
-    // Obter o tamanho da grade
-    int L = atoi(argv[1]); // lado da grade
-    N = L * L; // número total de vértices
+    N = L * L; // Total de nós na grade
 
     // Alocar memória para o array de visitados
     int *visitado = (int *)calloc(N, sizeof(int));
@@ -67,7 +82,9 @@ int main(int argc, char **argv) {
     // Chamar BFS a partir do nó 0
     printf("Iniciando BFS...\n");
     bfs(visitado, 0, L);
-
+    // Contar o número de nós visitados
+    int totalVisitados = contaNos(visitado, L);
+    printf("Número total de nós visitados: %d\n", totalVisitados);
     // Liberar a memória alocada
     free(visitado);
     return 0;
